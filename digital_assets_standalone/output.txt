@@ -1,0 +1,273 @@
+PS D:\tf_k\digital_assets_standalone> terraform show
+# module.digital_assets.kaleido_platform_ams_fflistener.erc20_indexer[0]:
+resource "kaleido_platform_ams_fflistener" "erc20_indexer" {
+    config_json = jsonencode(
+        {
+            blockchainEvents = {
+                abiEvents     = [
+                    {
+                        anonymous = false
+                        inputs    = [
+                            {
+                                indexed = true
+                                name    = "from"
+                                type    = "address"
+                            },
+                            {
+                                indexed = true
+                                name    = "to"
+                                type    = "address"
+                            },
+                            {
+                                indexed = false
+                                name    = "value"
+                                type    = "uint256"
+                            },
+                        ]
+                        name      = "Transfer"
+                        type      = "event"
+                    },
+                ]
+                createOptions = {
+                    firstEvent = "0"
+                }
+            }
+            namespace        = "firefly-core"
+            taskName         = "erc20_indexer"
+        }
+    )
+    disabled    = false
+    environment = "e:fryskwx4xf"
+    id          = "fsb:njegkzo9fu"
+    name        = "erc20_indexer"
+    service     = "s:9ai996f4ss"
+}
+
+# module.digital_assets.kaleido_platform_ams_task.erc20_indexer[0]:
+resource "kaleido_platform_ams_task" "erc20_indexer" {
+    applied_version = null
+    environment     = "e:fryskwx4xf"
+    id              = "tk:rw2elbo1ay"
+    name            = "erc20_indexer"
+    service         = "s:9ai996f4ss"
+    task_yaml       = <<-EOT
+        steps:
+        - name: naming
+          options:
+            template: >-
+              {
+                  "pool": "pool",
+                  "poolQualified": input.blockchainEvent.info.address & "/pool",
+                  "activity": "pool-" & input.blockchainEvent.info.address,
+                  "protocolIdSafe": $replace(input.blockchainEvent.protocolId, "/", "_")
+              }
+          stopCondition: >-
+            $not(
+                input.blockchainEvent.info.signature = "Transfer(address,address,uint256)" and
+                $exists(input.blockchainEvent.output.value)
+            )
+          type: jsonata_template
+        - dynamicOptions:
+            activities: |-
+              [{
+                  "updateType": "create_or_ignore",
+                  "name": steps.naming.data.activity
+              }]
+            addresses: |-
+              [
+                {
+                  "updateType": "create_or_update",
+                  "address": input.blockchainEvent.info.address,
+                  "displayName": input.blockchainEvent.info.address,
+                  "contract": true
+                },
+                {
+                  "updateType": "create_or_update",
+                  "address": input.blockchainEvent.output.from,
+                  "displayName": input.blockchainEvent.output.from
+                },
+                {
+                  "updateType": "create_or_update",
+                  "address": input.blockchainEvent.output.to,
+                  "displayName": input.blockchainEvent.output.to
+                }
+              ]
+            events: |-
+              [{
+                  "updateType": "create_or_replace",
+                  "name": "transfer-" & steps.naming.data.protocolIdSafe,
+                  "activity": steps.naming.data.activity,
+                  "parent": {
+                      "type": "pool",
+                      "ref": steps.naming.data.poolQualified
+                  },
+                  "info": {
+                    "address": input.blockchainEvent.info.address,
+                    "blockNumber": input.blockchainEvent.info.blockNumber,
+                    "protocolId": input.blockchainEvent.protocolId,
+                    "transactionHash": input.blockchainEvent.info.transactionHash
+                  }
+              }]
+            pools: |-
+              [{
+                  "updateType": "create_or_ignore",
+                  "address": input.blockchainEvent.info.address,
+                  "name": steps.naming.data.pool,
+                  "standard": "ERC-20",
+                  "firefly": {
+                    "namespace": input.blockchainEvent.namespace
+                  }
+              }]
+            transfers: |-
+              [{
+                  "updateType": "create_or_replace",
+                  "protocolId": input.blockchainEvent.protocolId,
+                  "from": input.blockchainEvent.output.from,
+                  "to": input.blockchainEvent.output.to,
+                  "amount": input.blockchainEvent.output.value,
+                  "transactionHash": input.blockchainEvent.info.transactionHash,
+                  "parent": {
+                      "type": "pool",
+                      "ref": steps.naming.data.poolQualified
+                  },
+                  "firefly": {
+                    "namespace": input.blockchainEvent.namespace
+                  },
+                  "info": {
+                      "blockNumber": input.blockchainEvent.info.blockNumber
+                  }
+              }]
+          name: transfer_upsert
+          type: data_model_update
+        - dynamicOptions:
+            assets: |-
+              [{
+                  "updateType": "create_or_ignore",
+                  "name": "pool_" & input.blockchainEvent.info.address
+              }]
+            pools: |-
+              [{
+                  "updateType": "update_only",
+                  "address": input.blockchainEvent.info.address,
+                  "name": steps.naming.data.pool,
+                  "asset": "pool_" & input.blockchainEvent.info.address
+              }]
+          name: link_asset
+          type: data_model_update
+    EOT
+}
+
+# module.digital_assets.kaleido_platform_runtime.asset_manager_runtime[0]:
+resource "kaleido_platform_runtime" "asset_manager_runtime" {
+    config_json           = jsonencode({})
+    environment           = "e:fryskwx4xf"
+    environment_member_id = "em:383k1e5lvt"
+    id                    = "r:rghjlopkkp"
+    log_level             = null
+    name                  = "asset-manager"
+    size                  = "Medium"
+    stack_id              = "st:mynz9rvwy6"
+    stopped               = false
+    type                  = "AssetManager"
+    zone                  = "ap-east-1"
+}
+
+# module.digital_assets.kaleido_platform_runtime.wallet_manager_runtime[0]:
+resource "kaleido_platform_runtime" "wallet_manager_runtime" {
+    config_json           = jsonencode({})
+    environment           = "e:fryskwx4xf"
+    environment_member_id = "em:383k1e5lvt"
+    id                    = "r:ivgktjcx55"
+    log_level             = null
+    name                  = "wallet-manager"
+    size                  = "Medium"
+    stack_id              = "st:f143cqh2k3"
+    stopped               = false
+    type                  = "WalletManager"
+    zone                  = "ap-east-1"
+}
+
+# module.digital_assets.kaleido_platform_service.asset_manager_service[0]:
+resource "kaleido_platform_service" "asset_manager_service" {
+    config_json           = jsonencode(
+        {
+            keyManager = {
+                id = "s:ohbx1xnbnf"
+            }
+        }
+    )
+    connectivity_json     = ""
+    endpoints             = {
+        "rest" = {
+            type = "rest-and-ws"
+            urls = [
+                "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/asset-manager/rest",
+                "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/e:fryskwx4xf/s:9ai996f4ss/rest",
+            ]
+        },
+    }
+    environment           = "e:fryskwx4xf"
+    environment_member_id = "em:383k1e5lvt"
+    id                    = "s:9ai996f4ss"
+    name                  = "asset-manager"
+    runtime               = "r:rghjlopkkp"
+    stack_id              = "st:mynz9rvwy6"
+    type                  = "AssetManager"
+}
+
+# module.digital_assets.kaleido_platform_service.wallet_manager_service[0]:
+resource "kaleido_platform_service" "wallet_manager_service" {
+    config_json           = jsonencode(
+        {
+            keyManager = {
+                id = "s:ohbx1xnbnf"
+            }
+        }
+    )
+    connectivity_json     = ""
+    endpoints             = {
+        "rest" = {
+            type = "rest-and-ws"
+            urls = [
+                "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/wallet-manager/rest",
+                "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/e:fryskwx4xf/s:y9rkp4cpla/rest",
+            ]
+        },
+    }
+    environment           = "e:fryskwx4xf"
+    environment_member_id = "em:383k1e5lvt"
+    id                    = "s:y9rkp4cpla"
+    name                  = "wallet-manager"
+    runtime               = "r:ivgktjcx55"
+    stack_id              = "st:f143cqh2k3"
+    type                  = "WalletManager"
+}
+
+# module.digital_assets.kaleido_platform_stack.custody_stack[0]:
+resource "kaleido_platform_stack" "custody_stack" {
+    environment           = "e:fryskwx4xf"
+    environment_member_id = null
+    id                    = "st:f143cqh2k3"
+    name                  = "custody-stack"
+    sub_type              = "CustodyStack"
+    type                  = "digital_assets"
+}
+
+# module.digital_assets.kaleido_platform_stack.tokenization_stack[0]:
+resource "kaleido_platform_stack" "tokenization_stack" {
+    environment           = "e:fryskwx4xf"
+    environment_member_id = null
+    id                    = "st:mynz9rvwy6"
+    name                  = "tokenization-stack"
+    sub_type              = "TokenizationStack"
+    type                  = "digital_assets"
+}
+
+
+Outputs:
+
+asset_manager_service_id = "s:9ai996f4ss"
+custody_stack_id = "st:f143cqh2k3"
+tokenization_stack_id = "st:mynz9rvwy6"
+wallet_manager_service_id = "s:y9rkp4cpla"
+PS D:\tf_k\digital_assets_standalone> 
