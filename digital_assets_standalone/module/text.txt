@@ -1,0 +1,29 @@
+# Environment
+environment_id   = "e:fryskwx4xf"
+environment_name = "dlt-da-01"
+
+# Existing Service IDs
+key_manager_service_id = "s:ohbx1xnbnf"  # FireFly Signer
+evm_gateway_service_id = "r:lqvnjfys959"
+
+# WALLET & KEY - Created in KeyManager for signing transactions
+enable_wallet_creation = true
+wallet_name            = "digital-assets-wallet"
+signing_key_name       = "signing-key"
+
+# TOKENIZATION STACK - Asset Manager
+# For token tracking, ERC20/ERC721 indexing
+enable_tokenization_stack = true
+tokenization_stack_name   = "tokenization-stack"
+asset_manager_name        = "asset-manager"
+
+# ERC20 Indexer - tracks token transfers via FireFly
+enable_erc20_indexer = true
+firefly_namespace    = "firefly-core"  # Hyperledger FireFly service name
+
+# CUSTODY STACK - Wallet Manager
+# For wallet management, custody operations
+enable_custody_stack   = true
+custody_stack_name     = "custody-stack"
+wallet_manager_name    = "wallet-manager"
+
