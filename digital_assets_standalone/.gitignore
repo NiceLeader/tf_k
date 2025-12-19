@@ -1,0 +1,18 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Environment-specific variables (contain credentials)
+vars/dev.tfvars
+vars/prod.tfvars
+vars/staging.tfvars
+
+# Keep example
+!vars/example.tfvars
+
+# IDE
+.idea/
+.vscode/
+*.swp
