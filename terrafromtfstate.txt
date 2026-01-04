@@ -1,0 +1,430 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.2",
+  "serial": 27,
+  "lineage": "1593a402-6b07-cb17-fba2-7af41747ea71",
+  "outputs": {
+    "asset_manager_service_id": {
+      "value": "s:b0yh11ault",
+      "type": "string"
+    },
+    "custody_stack_id": {
+      "value": "st:jbl1kqo9or",
+      "type": "string"
+    },
+    "deployment_summary": {
+      "value": {
+        "custody": {
+          "stack_id": "st:jbl1kqo9or",
+          "stack_name": "custody-stack",
+          "wallet_manager_id": "s:khypylwdwa"
+        },
+        "environment": "dlt-da-01",
+        "shared_services": {
+          "evm_gateway_id": "r:ubc0jfqz4d",
+          "key_manager_id": "s:saha62wmzm"
+        },
+        "token_config": {
+          "linked_contract": "none",
+          "name": "Token",
+          "symbol": "TKN"
+        },
+        "tokenization": {
+          "asset_manager_id": "s:b0yh11ault",
+          "erc20_indexer": "enabled",
+          "stack_id": "st:qn07jghr4e",
+          "stack_name": "tokenization-stack"
+        },
+        "wallet": {
+          "signing_address": "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361",
+          "signing_key_id": "k:j8wpakf6qk",
+          "wallet_id": "w:er8s16yhkm"
+        }
+      },
+      "type": [
+        "object",
+        {
+          "custody": [
+            "object",
+            {
+              "stack_id": "string",
+              "stack_name": "string",
+              "wallet_manager_id": "string"
+            }
+          ],
+          "environment": "string",
+          "shared_services": [
+            "object",
+            {
+              "evm_gateway_id": "string",
+              "key_manager_id": "string"
+            }
+          ],
+          "token_config": [
+            "object",
+            {
+              "linked_contract": "string",
+              "name": "string",
+              "symbol": "string"
+            }
+          ],
+          "tokenization": [
+            "object",
+            {
+              "asset_manager_id": "string",
+              "erc20_indexer": "string",
+              "stack_id": "string",
+              "stack_name": "string"
+            }
+          ],
+          "wallet": [
+            "object",
+            {
+              "signing_address": "string",
+              "signing_key_id": "string",
+              "wallet_id": "string"
+            }
+          ]
+        }
+      ]
+    },
+    "signing_key_address": {
+      "value": "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361",
+      "type": "string"
+    },
+    "signing_key_id": {
+      "value": "k:j8wpakf6qk",
+      "type": "string"
+    },
+    "tokenization_stack_id": {
+      "value": "st:qn07jghr4e",
+      "type": "string"
+    },
+    "wallet_id": {
+      "value": "w:er8s16yhkm",
+      "type": "string"
+    },
+    "wallet_manager_service_id": {
+      "value": "s:khypylwdwa",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_ams_fflistener",
+      "name": "erc20_indexer",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "config_json": "{\"blockchainEvents\":{\"abiEvents\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}],\"createOptions\":{\"firstEvent\":\"0\"}},\"namespace\":\"sc-chain-casa-core\",\"taskName\":\"erc20_indexer\"}",
+            "disabled": false,
+            "environment": "e:fryskwx4xf",
+            "id": "fsb:x2o6qiis7z",
+            "name": "erc20_indexer",
+            "service": "s:b0yh11ault"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_ams_task.erc20_indexer",
+            "module.digital_assets.kaleido_platform_runtime.asset_manager_runtime",
+            "module.digital_assets.kaleido_platform_service.asset_manager_service",
+            "module.digital_assets.kaleido_platform_stack.tokenization_stack"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_ams_task",
+      "name": "erc20_indexer",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "applied_version": "2026.1.0",
+            "description": null,
+            "environment": "e:fryskwx4xf",
+            "id": "tk:zpkf61d1qi",
+            "name": "erc20_indexer",
+            "service": "s:b0yh11ault",
+            "task_yaml": "steps:\r\n- name: naming\r\n  options:\r\n    template: \u003e-\r\n      {\r\n          \"pool\": \"pool\",\r\n          \"poolQualified\": input.blockchainEvent.info.address \u0026 \"/pool\",\r\n          \"activity\": \"pool-\" \u0026 input.blockchainEvent.info.address,\r\n          \"protocolIdSafe\": $replace(input.blockchainEvent.protocolId, \"/\", \"_\")\r\n      }\r\n  stopCondition: \u003e-\r\n    $not(\r\n        input.blockchainEvent.info.signature = \"Transfer(address,address,uint256)\" and\r\n        $exists(input.blockchainEvent.output.value)\r\n    )\r\n  type: jsonata_template\r\n- dynamicOptions:\r\n    activities: |-\r\n      [{\r\n          \"updateType\": \"create_or_ignore\",\r\n          \"name\": steps.naming.data.activity\r\n      }]\r\n    addresses: |-\r\n      [\r\n        {\r\n          \"updateType\": \"create_or_update\",\r\n          \"address\": input.blockchainEvent.info.address,\r\n          \"displayName\": input.blockchainEvent.info.address,\r\n          \"contract\": true\r\n        },\r\n        {\r\n          \"updateType\": \"create_or_update\",\r\n          \"address\": input.blockchainEvent.output.from,\r\n          \"displayName\": input.blockchainEvent.output.from\r\n        },\r\n        {\r\n          \"updateType\": \"create_or_update\",\r\n          \"address\": input.blockchainEvent.output.to,\r\n          \"displayName\": input.blockchainEvent.output.to\r\n        }\r\n      ]\r\n    events: |-\r\n      [{\r\n          \"updateType\": \"create_or_replace\",\r\n          \"name\": \"transfer-\" \u0026 steps.naming.data.protocolIdSafe,\r\n          \"activity\": steps.naming.data.activity,\r\n          \"parent\": {\r\n              \"type\": \"pool\",\r\n              \"ref\": steps.naming.data.poolQualified\r\n          },\r\n          \"info\": {\r\n            \"address\": input.blockchainEvent.info.address,\r\n            \"blockNumber\": input.blockchainEvent.info.blockNumber,\r\n            \"protocolId\": input.blockchainEvent.protocolId,\r\n            \"transactionHash\": input.blockchainEvent.info.transactionHash\r\n          }\r\n      }]\r\n    pools: |-\r\n      [{\r\n          \"updateType\": \"create_or_ignore\",\r\n          \"address\": input.blockchainEvent.info.address,\r\n          \"name\": steps.naming.data.pool,\r\n          \"standard\": \"ERC-20\",\r\n          \"firefly\": {\r\n            \"namespace\": input.blockchainEvent.namespace\r\n          }\r\n      }]\r\n    transfers: |-\r\n      [{\r\n          \"updateType\": \"create_or_replace\",\r\n          \"protocolId\": input.blockchainEvent.protocolId,\r\n          \"from\": input.blockchainEvent.output.from,\r\n          \"to\": input.blockchainEvent.output.to,\r\n          \"amount\": input.blockchainEvent.output.value,\r\n          \"transactionHash\": input.blockchainEvent.info.transactionHash,\r\n          \"parent\": {\r\n              \"type\": \"pool\",\r\n              \"ref\": steps.naming.data.poolQualified\r\n          },\r\n          \"firefly\": {\r\n            \"namespace\": input.blockchainEvent.namespace\r\n          },\r\n          \"info\": {\r\n              \"blockNumber\": input.blockchainEvent.info.blockNumber\r\n          }\r\n      }]\r\n  name: transfer_upsert\r\n  type: data_model_update\r\n- dynamicOptions:\r\n    assets: |-\r\n      [{\r\n          \"updateType\": \"create_or_ignore\",\r\n          \"name\": \"pool_\" \u0026 input.blockchainEvent.info.address\r\n      }]\r\n    pools: |-\r\n      [{\r\n          \"updateType\": \"update_only\",\r\n          \"address\": input.blockchainEvent.info.address,\r\n          \"name\": steps.naming.data.pool,\r\n          \"asset\": \"pool_\" \u0026 input.blockchainEvent.info.address\r\n      }]\r\n  name: link_asset\r\n  type: data_model_update\r\n",
+            "variable_set": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_runtime.asset_manager_runtime",
+            "module.digital_assets.kaleido_platform_service.asset_manager_service",
+            "module.digital_assets.kaleido_platform_stack.tokenization_stack"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_kms_key",
+      "name": "signing_key",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "address": "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361",
+            "environment": "e:fryskwx4xf",
+            "id": "k:j8wpakf6qk",
+            "name": "signing-key",
+            "path": "m/44'/60'/0'/0/0",
+            "service": "s:saha62wmzm",
+            "uri": "kld:///keystore/digital-assets-wallet/key/signing-key",
+            "wallet": "w:er8s16yhkm"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_kms_wallet.hdwallet"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_kms_wallet",
+      "name": "hdwallet",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "config_json": "{}",
+            "creds_json": "{}",
+            "environment": "e:fryskwx4xf",
+            "id": "w:er8s16yhkm",
+            "name": "digital-assets-wallet",
+            "service": "s:saha62wmzm",
+            "type": "hdwallet"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_runtime",
+      "name": "asset_manager_runtime",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "config_json": "{}",
+            "environment": "e:fryskwx4xf",
+            "environment_member_id": "em:383k1e5lvt",
+            "force_delete": null,
+            "id": "r:gk3cfl6imd",
+            "log_level": "",
+            "name": "asset-manager",
+            "size": "Medium",
+            "stack_id": "st:qn07jghr4e",
+            "stopped": false,
+            "storage_size": null,
+            "storage_type": null,
+            "sub_zone": null,
+            "type": "AssetManager",
+            "zone": "ap-east-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_stack.tokenization_stack"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_runtime",
+      "name": "wallet_manager_runtime",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "config_json": "{}",
+            "environment": "e:fryskwx4xf",
+            "environment_member_id": "em:383k1e5lvt",
+            "force_delete": null,
+            "id": "r:fdcr3im0w2",
+            "log_level": "",
+            "name": "wallet-manager",
+            "size": "Medium",
+            "stack_id": "st:jbl1kqo9or",
+            "stopped": false,
+            "storage_size": null,
+            "storage_type": null,
+            "sub_zone": null,
+            "type": "WalletManager",
+            "zone": "ap-east-1"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_stack.custody_stack"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_service",
+      "name": "asset_manager_service",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "config_json": "{\"keyManager\":{\"id\":\"s:saha62wmzm\"}}",
+            "connectivity_json": "",
+            "cred_sets": null,
+            "endpoints": {
+              "rest": {
+                "type": "rest-and-ws",
+                "urls": [
+                  "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/asset-manager/rest",
+                  "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/e:fryskwx4xf/s:b0yh11ault/rest"
+                ]
+              }
+            },
+            "environment": "e:fryskwx4xf",
+            "environment_member_id": "em:383k1e5lvt",
+            "file_sets": null,
+            "force_delete": null,
+            "hostnames": null,
+            "id": "s:b0yh11ault",
+            "name": "asset-manager",
+            "runtime": "r:gk3cfl6imd",
+            "stack_id": "st:qn07jghr4e",
+            "type": "AssetManager"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_runtime.asset_manager_runtime",
+            "module.digital_assets.kaleido_platform_stack.tokenization_stack"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_service",
+      "name": "wallet_manager_service",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "config_json": "{\"keyManager\":{\"id\":\"s:saha62wmzm\"}}",
+            "connectivity_json": "",
+            "cred_sets": null,
+            "endpoints": {
+              "rest": {
+                "type": "rest-and-ws",
+                "urls": [
+                  "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/wallet-manager/rest",
+                  "https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/e:fryskwx4xf/s:khypylwdwa/rest"
+                ]
+              }
+            },
+            "environment": "e:fryskwx4xf",
+            "environment_member_id": "em:383k1e5lvt",
+            "file_sets": null,
+            "force_delete": null,
+            "hostnames": null,
+            "id": "s:khypylwdwa",
+            "name": "wallet-manager",
+            "runtime": "r:fdcr3im0w2",
+            "stack_id": "st:jbl1kqo9or",
+            "type": "WalletManager"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_runtime.wallet_manager_runtime",
+            "module.digital_assets.kaleido_platform_stack.custody_stack"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_stack",
+      "name": "custody_stack",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "environment": "e:fryskwx4xf",
+            "environment_member_id": "",
+            "id": "st:jbl1kqo9or",
+            "name": "custody-stack",
+            "network_id": null,
+            "sub_type": "CustodyStack",
+            "type": "digital_assets"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    },
+    {
+      "module": "module.digital_assets",
+      "mode": "managed",
+      "type": "kaleido_platform_stack",
+      "name": "tokenization_stack",
+      "provider": "provider[\"registry.terraform.io/kaleido-io/kaleido\"]",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "environment": "e:fryskwx4xf",
+            "environment_member_id": "",
+            "id": "st:qn07jghr4e",
+            "name": "tokenization-stack",
+            "network_id": null,
+            "sub_type": "TokenizationStack",
+            "type": "digital_assets"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
