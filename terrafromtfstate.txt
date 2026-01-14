@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.14.2",
-  "serial": 27,
+  "serial": 39,
   "lineage": "1593a402-6b07-cb17-fba2-7af41747ea71",
   "outputs": {
     "asset_manager_service_id": {
@@ -25,9 +25,9 @@
           "key_manager_id": "s:saha62wmzm"
         },
         "token_config": {
-          "linked_contract": "none",
-          "name": "Token",
-          "symbol": "TKN"
+          "linked_contract": "0x08bcc05e7a712fe3587edf7130c00df2768241d1",
+          "name": "Simple Test Token",
+          "symbol": "STT"
         },
         "tokenization": {
           "asset_manager_id": "s:b0yh11ault",
@@ -36,8 +36,15 @@
           "stack_name": "tokenization-stack"
         },
         "wallet": {
-          "signing_address": "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361",
-          "signing_key_id": "k:j8wpakf6qk",
+          "signing_addresses": [
+            "0xd045228c9a6d53b81cf15d15408af32ebad3b9cf",
+            "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361"
+          ],
+          "signing_key_count": 2,
+          "signing_key_ids": [
+            "k:9boyfcpc6p",
+            "k:3vm3fheaip"
+          ],
           "wallet_id": "w:er8s16yhkm"
         }
       },
@@ -80,8 +87,21 @@
           "wallet": [
             "object",
             {
-              "signing_address": "string",
-              "signing_key_id": "string",
+              "signing_addresses": [
+                "tuple",
+                [
+                  "string",
+                  "string"
+                ]
+              ],
+              "signing_key_count": "number",
+              "signing_key_ids": [
+                "tuple",
+                [
+                  "string",
+                  "string"
+                ]
+              ],
               "wallet_id": "string"
             }
           ]
@@ -89,11 +109,11 @@
       ]
     },
     "signing_key_address": {
-      "value": "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361",
+      "value": "0xd045228c9a6d53b81cf15d15408af32ebad3b9cf",
       "type": "string"
     },
     "signing_key_id": {
-      "value": "k:j8wpakf6qk",
+      "value": "k:9boyfcpc6p",
       "type": "string"
     },
     "tokenization_stack_id": {
@@ -121,7 +141,7 @@
           "index_key": 0,
           "schema_version": 0,
           "attributes": {
-            "config_json": "{\"blockchainEvents\":{\"abiEvents\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}],\"createOptions\":{\"firstEvent\":\"0\"}},\"namespace\":\"sc-chain-casa-core\",\"taskName\":\"erc20_indexer\"}",
+            "config_json": "{\"blockchainEvents\":{\"abiEvents\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}],\"createOptions\":{\"firstEvent\":\"0\"},\"locations\":[{\"address\":\"0x08bcc05e7a712fe3587edf7130c00df2768241d1\"}]},\"namespace\":\"sc-chain-casa-core\",\"taskName\":\"erc20_indexer\"}",
             "disabled": false,
             "environment": "e:fryskwx4xf",
             "id": "fsb:x2o6qiis7z",
@@ -180,13 +200,32 @@
           "index_key": 0,
           "schema_version": 0,
           "attributes": {
+            "address": "0xd045228c9a6d53b81cf15d15408af32ebad3b9cf",
+            "environment": "e:fryskwx4xf",
+            "id": "k:9boyfcpc6p",
+            "name": "signing-key-1",
+            "path": "m/44'/60'/0'/0/1",
+            "service": "s:saha62wmzm",
+            "uri": "kld:///keystore/digital-assets-wallet/key/signing-key-1",
+            "wallet": "w:er8s16yhkm"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "dependencies": [
+            "module.digital_assets.kaleido_platform_kms_wallet.hdwallet"
+          ]
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
             "address": "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361",
             "environment": "e:fryskwx4xf",
-            "id": "k:j8wpakf6qk",
-            "name": "signing-key",
+            "id": "k:3vm3fheaip",
+            "name": "signing-key-2",
             "path": "m/44'/60'/0'/0/0",
             "service": "s:saha62wmzm",
-            "uri": "kld:///keystore/digital-assets-wallet/key/signing-key",
+            "uri": "kld:///keystore/digital-assets-wallet/key/signing-key-2",
             "wallet": "w:er8s16yhkm"
           },
           "sensitive_attributes": [],

@@ -2,10 +2,8 @@
 # Deploys both TokenizationStack (AssetManager) and CustodyStack (WalletManager)
 # Both use the existing KeyManager (FireFly Signer)
 
-# =============================================================================
 # WALLET & KEY - Created in existing KeyManager
 # Required for signing transactions and managing tokens
-# =============================================================================
 
 resource "kaleido_platform_kms_wallet" "hdwallet" {
   count       = var.enable_wallet_creation ? 1 : 0
@@ -17,8 +15,8 @@ resource "kaleido_platform_kms_wallet" "hdwallet" {
 }
 
 resource "kaleido_platform_kms_key" "signing_key" {
-  count       = var.enable_wallet_creation ? 1 : 0
-  name        = var.signing_key_name
+  count       = var.enable_wallet_creation ? var.signing_key_count : 0
+  name        = "${var.signing_key_name}-${count.index + 1}"
   environment = var.environment_id
   service     = var.key_manager_service_id
   wallet      = kaleido_platform_kms_wallet.hdwallet[0].id
@@ -28,10 +26,8 @@ resource "kaleido_platform_kms_key" "signing_key" {
 # kaleido_platform_ams_address which is not available in provider v1.1.0
 # Addresses will be auto-registered when ERC20 Indexer detects transactions
 
-# =============================================================================
 # TOKENIZATION STACK - Asset Manager
 # For token tracking, ERC20/ERC721 indexing, asset management
-# =============================================================================
 
 resource "kaleido_platform_stack" "tokenization_stack" {
   count       = var.enable_tokenization_stack ? 1 : 0
@@ -65,9 +61,7 @@ resource "kaleido_platform_service" "asset_manager_service" {
   })
 }
 
-# =============================================================================
 # ERC20 INDEXER TASK - For tracking token transfers
-# =============================================================================
 
 resource "kaleido_platform_ams_task" "erc20_indexer" {
   count       = var.enable_tokenization_stack && var.enable_erc20_indexer ? 1 : 0
@@ -182,9 +176,7 @@ steps:
 EOT
 }
 
-# =============================================================================
 # FIREFLY LISTENER - Listens for blockchain events from FireFly
-# =============================================================================
 
 resource "kaleido_platform_ams_fflistener" "erc20_indexer" {
   count       = var.enable_tokenization_stack && var.enable_erc20_indexer ? 1 : 0
@@ -201,6 +193,11 @@ resource "kaleido_platform_ams_fflistener" "erc20_indexer" {
       createOptions = {
         firstEvent = "0"
       }
+      locations = var.existing_token_contract_address != "" ? [
+        {
+          address = var.existing_token_contract_address
+        }
+      ] : []
       abiEvents = [
         {
           anonymous = false
@@ -229,10 +226,8 @@ resource "kaleido_platform_ams_fflistener" "erc20_indexer" {
   })
 }
 
-# =============================================================================
 # CUSTODY STACK - Wallet Manager
 # For wallet management, custody operations, key management
-# =============================================================================
 
 resource "kaleido_platform_stack" "custody_stack" {
   count       = var.enable_custody_stack ? 1 : 0

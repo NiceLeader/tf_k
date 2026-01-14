@@ -39,9 +39,7 @@ variable "evm_gateway_service_id" {
   type        = string
 }
 
-# =============================================================================
 # WALLET & KEY Configuration
-# =============================================================================
 
 variable "enable_wallet_creation" {
   description = "Create HD Wallet and signing key in KeyManager"
@@ -61,9 +59,13 @@ variable "signing_key_name" {
   default     = "signing-key"
 }
 
-# =============================================================================
+variable "signing_key_count" {
+  description = "Number of signing keys to create (for multiple wallets)"
+  type        = number
+  default     = 2
+}
+
 # TOKENIZATION STACK Configuration
-# =============================================================================
 
 variable "enable_tokenization_stack" {
   description = "Enable TokenizationStack with AssetManager"
@@ -95,9 +97,7 @@ variable "firefly_namespace" {
   default     = "firefly"
 }
 
-# =============================================================================
 # CUSTODY STACK Configuration
-# =============================================================================
 
 variable "enable_custody_stack" {
   description = "Enable CustodyStack with WalletManager"
@@ -117,9 +117,7 @@ variable "wallet_manager_name" {
   default     = "wallet-manager"
 }
 
-# =============================================================================
 # Token Configuration (for linking existing contracts)
-# =============================================================================
 
 variable "token_name" {
   description = "Name of the token"

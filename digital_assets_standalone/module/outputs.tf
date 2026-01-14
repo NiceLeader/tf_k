@@ -1,25 +1,32 @@
-# =============================================================================
 # WALLET & KEY Outputs
-# =============================================================================
 
 output "wallet_id" {
   description = "ID of the HD Wallet"
   value       = var.enable_wallet_creation ? kaleido_platform_kms_wallet.hdwallet[0].id : null
 }
 
+output "signing_key_ids" {
+  description = "IDs of all signing keys"
+  value       = var.enable_wallet_creation ? kaleido_platform_kms_key.signing_key[*].id : []
+}
+
+output "signing_key_addresses" {
+  description = "Ethereum addresses of all signing keys"
+  value       = var.enable_wallet_creation ? kaleido_platform_kms_key.signing_key[*].address : []
+}
+
+# Kept for backwards compatibility - returns first key
 output "signing_key_id" {
-  description = "ID of the signing key"
-  value       = var.enable_wallet_creation ? kaleido_platform_kms_key.signing_key[0].id : null
+  description = "ID of the first signing key (for backwards compatibility)"
+  value       = var.enable_wallet_creation && var.signing_key_count > 0 ? kaleido_platform_kms_key.signing_key[0].id : null
 }
 
 output "signing_key_address" {
-  description = "Ethereum address of the signing key"
-  value       = var.enable_wallet_creation ? kaleido_platform_kms_key.signing_key[0].address : null
+  description = "Ethereum address of the first signing key (for backwards compatibility)"
+  value       = var.enable_wallet_creation && var.signing_key_count > 0 ? kaleido_platform_kms_key.signing_key[0].address : null
 }
 
-# =============================================================================
 # TOKENIZATION STACK Outputs
-# =============================================================================
 
 output "tokenization_stack_id" {
   description = "ID of the TokenizationStack"
@@ -46,9 +53,7 @@ output "erc20_indexer_listener_id" {
   value       = var.enable_tokenization_stack && var.enable_erc20_indexer ? kaleido_platform_ams_fflistener.erc20_indexer[0].id : null
 }
 
-# =============================================================================
 # CUSTODY STACK Outputs
-# =============================================================================
 
 output "custody_stack_id" {
   description = "ID of the CustodyStack"
@@ -65,9 +70,7 @@ output "wallet_manager_service_id" {
   value       = var.enable_custody_stack ? kaleido_platform_service.wallet_manager_service[0].id : null
 }
 
-# =============================================================================
 # Summary
-# =============================================================================
 
 output "deployment_summary" {
   description = "Summary of digital assets deployment"
@@ -94,8 +97,9 @@ output "deployment_summary" {
 
     wallet = var.enable_wallet_creation ? {
       wallet_id          = kaleido_platform_kms_wallet.hdwallet[0].id
-      signing_key_id     = kaleido_platform_kms_key.signing_key[0].id
-      signing_address    = kaleido_platform_kms_key.signing_key[0].address
+      signing_key_ids    = kaleido_platform_kms_key.signing_key[*].id
+      signing_addresses  = kaleido_platform_kms_key.signing_key[*].address
+      signing_key_count  = var.signing_key_count
     } : null
 
     token_config = {

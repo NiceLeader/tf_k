@@ -16,6 +16,7 @@ module "digital_assets" {
   enable_wallet_creation = var.enable_wallet_creation
   wallet_name            = var.wallet_name
   signing_key_name       = var.signing_key_name
+  signing_key_count      = var.signing_key_count
 
   # Tokenization Stack
   enable_tokenization_stack = var.enable_tokenization_stack
@@ -28,5 +29,10 @@ module "digital_assets" {
   enable_custody_stack  = var.enable_custody_stack
   custody_stack_name    = var.custody_stack_name
   wallet_manager_name   = var.wallet_manager_name
+
+  # Token Configuration
+  token_name                      = var.token_name
+  token_symbol                    = var.token_symbol
+  existing_token_contract_address = var.existing_token_contract_address
 
 }
