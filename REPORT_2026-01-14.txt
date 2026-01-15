@@ -1,239 +1,243 @@
-# Digital Assets - Implementation Report
-**Date:** January 14, 2026
+DIGITAL ASSETS - IMPLEMENTATION REPORT
+Date: January 14, 2026
 
-## Summary
-Implemented complete Digital Assets infrastructure with Terraform, created 2 wallets, configured Asset Manager, and successfully executed token transfers. Transfers WORK in blockchain, but FireFly event indexing does not capture Transfer events.
+================================================================================
+SUMMARY
+================================================================================
 
----
+Implemented complete Digital Assets infrastructure with Terraform, created
+2 wallets, configured Asset Manager, and successfully executed token transfers.
+Transfers WORK in blockchain, but FireFly event indexing does not capture
+Transfer events.
 
-## ✅ What WORKS (Ready for Presentation)
+================================================================================
+WHAT WORKS (Ready for Presentation)
+================================================================================
 
-### 1. Terraform Infrastructure
-- **Multiple Signing Keys**: 2 keys in one HD Wallet
-  - Key 1: `k:9boyfcpc6p` → `0xd045228c9a6d53b81cf15d15408af32ebad3b9cf`
-  - Key 2: `k:3vm3fheaip` → `0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361`
-- **TokenizationStack** with Asset Manager
-- **CustodyStack** with Wallet Manager
-- **ERC20 Indexer** with FireFly listener (configured)
+1. TERRAFORM INFRASTRUCTURE
+   - Multiple Signing Keys: 2 keys in one HD Wallet
+     * Key 1: k:9boyfcpc6p -> 0xd045228c9a6d53b81cf15d15408af32ebad3b9cf
+     * Key 2: k:3vm3fheaip -> 0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361
+   - TokenizationStack with Asset Manager
+   - CustodyStack with Wallet Manager
+   - ERC20 Indexer with FireFly listener (configured)
 
-### 2. FireFly Configuration
-- ✅ ERC20 Interface (FFI) registered
-- ✅ Smart Contract API created: `simple-test-token-api`
-- ✅ Contract: `0x08bcc05e7a712fe3587edf7130c00df2768241d1`
+2. FIREFLY CONFIGURATION
+   [OK] ERC20 Interface (FFI) registered
+   [OK] Smart Contract API created: simple-test-token-api
+   [OK] Contract: 0x08bcc05e7a712fe3587edf7130c00df2768241d1
 
-### 3. Asset Manager
-- ✅ Pool created: `0x08bcc05e7a712fe3587edf7130c00df2768241d1/pool`
-- ✅ Pool with namespace: `sc-chain-casa-core`
-- ✅ Asset linked: `pool_0x08bcc05e7a712fe3587edf7130c00df2768241d1`
+3. ASSET MANAGER
+   [OK] Pool created: 0x08bcc05e7a712fe3587edf7130c00df2768241d1/pool
+   [OK] Pool with namespace: sc-chain-casa-core
+   [OK] Asset linked: pool_0x08bcc05e7a712fe3587edf7130c00df2768241d1
 
-### 4. Wallet Manager
-- ✅ Asset configured: `simple-test-token` (STT)
-- ✅ Flow configured: `sc-chain-casa-core/apis/simple-test-token-api`
-- ✅ 2 wallets created:
-  - Wallet 1: `wal:9vvi216aur` → `0xd045228c9a6d53b81cf15d15408af32ebad3b9cf`
-  - Wallet 2: `wal:26jmcn4zh7` → `0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361`
-- ✅ Both wallets connected to asset (accounts created)
+4. WALLET MANAGER
+   [OK] Asset configured: simple-test-token (STT)
+   [OK] Flow configured: sc-chain-casa-core/apis/simple-test-token-api
+   [OK] 2 wallets created:
+        - Wallet 1: wal:9vvi216aur -> 0xd045228c9a6d53b81cf15d15408af32ebad3b9cf
+        - Wallet 2: wal:26jmcn4zh7 -> 0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361
+   [OK] Both wallets connected to asset (accounts created)
 
-### 5. **BLOCKCHAIN TRANSACTIONS - SUCCESS!** 🎉
+5. BLOCKCHAIN TRANSACTIONS - SUCCESS!
 
-All transactions executed successfully in blockchain:
+   All transactions executed successfully in blockchain:
 
-| Operation | Amount | TX Hash | Status |
-|----------|--------|---------|--------|
-| Mint | 1000 STT | `0xb8dcb3b7...5b4eeae9` | ✅ Succeeded |
-| Mint | 100 STT | `0x29e0d68c...74676a2b` | ✅ Succeeded |
-| Transfer | 50 STT | `0x4f680a94...16b6006b` | ✅ Succeeded |
-| Transfer | 25 STT | `0x0a244d38...136f8b00` | ✅ Succeeded |
-| Transfer | 10 STT | `0xe0440338...bd684860` | ✅ Succeeded |
-| Transfer | 5 STT | `0x288cb036...6b1a36b8` | ✅ Succeeded |
+   Operation    | Amount    | TX Hash                      | Status
+   -------------|-----------|------------------------------|----------
+   Mint         | 1000 STT  | 0xb8dcb3b7...5b4eeae9        | Succeeded
+   Mint         | 100 STT   | 0x29e0d68c...74676a2b        | Succeeded
+   Transfer     | 50 STT    | 0x4f680a94...16b6006b        | Succeeded
+   Transfer     | 25 STT    | 0x0a244d38...136f8b00        | Succeeded
+   Transfer     | 10 STT    | 0xe0440338...bd684860        | Succeeded
+   Transfer     | 5 STT     | 0x288cb036...6b1a36b8        | Succeeded
 
-**Transfer Details:**
-- From: `0xd045228c9a6d53b81cf15d15408af32ebad3b9cf` (wallet-1)
-- To: `0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361` (wallet-2)
-- Total Transferred: **90 STT**
+   Transfer Details:
+   - From: 0xd045228c9a6d53b81cf15d15408af32ebad3b9cf (wallet-1)
+   - To: 0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361 (wallet-2)
+   - Total Transferred: 90 STT
 
----
+================================================================================
+WHAT DOES NOT WORK
+================================================================================
 
-## ❌ What DOES NOT Work
+FIREFLY BLOCKCHAIN EVENT LISTENER
 
-### FireFly Blockchain Event Listener
-**Problem:** FireFly does not capture Transfer events from blockchain despite correct configuration.
+Problem: FireFly does not capture Transfer events from blockchain despite
+correct configuration.
 
-**Diagnostics (Extended Debugging Session):**
+Diagnostics (Extended Debugging Session):
 
-✅ **Configuration Correct:**
-- Contract Listener: `location`, `signature`, `firstEvent: "0"`
-- FFListener: `taskId`, `namespace`, `abiEvents`, `locations`
-- Subscription: topic matching correct
-- Task `erc20_indexer`: **WORKS** (confirmed by manual invocation)
+[OK] Configuration Correct:
+     - Contract Listener: location, signature, firstEvent: "0"
+     - FFListener: taskId, namespace, abiEvents, locations
+     - Subscription: topic matching correct
+     - Task erc20_indexer: WORKS (confirmed by manual invocation)
 
-❌ **Event Chain Broken:**
-1. ✅ Blockchain transaction executed → TX Hash visible
-2. ✅ FireFly records transaction in `/transactions`
-3. ❌ **FireFly blockchain connector does NOT convert transaction → blockchain event**
-4. ❌ Contract listener receives no events (because they don't exist)
-5. ❌ Subscription is not invoked
-6. ❌ Asset Manager task is not executed
-7. ❌ Transfer is not indexed
+[ERROR] Event Chain Broken:
+     1. [OK] Blockchain transaction executed -> TX Hash visible
+     2. [OK] FireFly records transaction in /transactions
+     3. [ERROR] FireFly blockchain connector does NOT convert transaction -> blockchain event
+     4. [ERROR] Contract listener receives no events (because they don't exist)
+     5. [ERROR] Subscription is not invoked
+     6. [ERROR] Asset Manager task is not executed
+     7. [ERROR] Transfer is not indexed
 
-**Root Cause (CONFIRMED):**
-**FireFly blockchain connector (evmconnect) does NOT publish blockchain events** from Ethereum node, even though:
-- Transactions are in blockchain ✅
-- FireFly sees transactions in `/transactions` ✅
-- Listener is configured ✅
-- **GET `/blockchainevents` returns `[]`** ❌
+Root Cause (CONFIRMED):
+FireFly blockchain connector (evmconnect) does NOT publish blockchain events
+from Ethereum node, even though:
+- Transactions are in blockchain [OK]
+- FireFly sees transactions in /transactions [OK]
+- Listener is configured [OK]
+- GET /blockchainevents returns [] [ERROR]
 
-**Manual Task Test:**
-- ✅ Task invoked manually with mock event → **SUCCESS**
-- ✅ Pool created with `namespace: "sc-chain-casa-core"`
-- ✅ Asset created: `pool_0x08bcc05e7a712fe3587edf7130c00df2768241d1`
-- ❌ Transfer not created (missing data in mock event)
+Manual Task Test:
+- [OK] Task invoked manually with mock event -> SUCCESS
+- [OK] Pool created with namespace: "sc-chain-casa-core"
+- [OK] Asset created: pool_0x08bcc05e7a712fe3587edf7130c00df2768241d1
+- [ERROR] Transfer not created (missing data in mock event)
 
-**Conclusions:**
-- Task and configuration are **100% correct**
-- Problem is in **Kaleido platform** - blockchain connector not working
+Conclusions:
+- Task and configuration are 100% correct
+- Problem is in Kaleido platform - blockchain connector not working
 - Cannot be fixed with Terraform or API
 
-**Impact:**
-- Transfers WORK in blockchain ✅
-- Task WORKS when receiving event ✅
-- **Blockchain connector does not emit events** ❌
-- Tracking and reporting in AssetManager does NOT work ❌
+Impact:
+- Transfers WORK in blockchain [OK]
+- Task WORKS when receiving event [OK]
+- Blockchain connector does not emit events [ERROR]
+- Tracking and reporting in AssetManager does NOT work [ERROR]
 
----
+================================================================================
+CONFIGURATION FILES
+================================================================================
 
-## 📁 Configuration Files
+TERRAFORM:
+- digital_assets_standalone/module/main.tf - updated with locations in listener
+- digital_assets_standalone/module/variables.tf - added signing_key_count
+- digital_assets_standalone/module/outputs.tf - arrays for multiple keys
+- digital_assets_standalone/vars/dev.tfvars - complete configuration
 
-### Terraform
-- `digital_assets_standalone/module/main.tf` - updated with `locations` in listener
-- `digital_assets_standalone/module/variables.tf` - added `signing_key_count`
-- `digital_assets_standalone/module/outputs.tf` - arrays for multiple keys
-- `digital_assets_standalone/vars/dev.tfvars` - complete configuration
+CONFIGURATION FILES (created manually):
+- ffi-generate.json - FFI generation request
+- ffi-register.json - FFI registration
+- api-create.json - Smart Contract API
+- pool-create.json - AssetManager pool
+- asset-config.json - WalletManager asset config
+- wallet1.json - Wallet 1 config
+- wallet2.json - Wallet 2 config
 
-### Configuration Files (created manually)
-- `ffi-generate.json` - FFI generation request
-- `ffi-register.json` - FFI registration
-- `api-create.json` - Smart Contract API
-- `pool-create.json` - AssetManager pool
-- `asset-config.json` - WalletManager asset config
-- `wallet1.json` - Wallet 1 config
-- `wallet2.json` - Wallet 2 config
+================================================================================
+TERRAFORM CHANGES
+================================================================================
 
----
-
-## 🔧 Terraform Changes
-
-### Main Changes:
-1. **Multiple Signing Keys Support**
-   ```hcl
+1. Multiple Signing Keys Support
    resource "kaleido_platform_kms_key" "signing_key" {
      count = var.enable_wallet_creation ? var.signing_key_count : 0
      name  = "${var.signing_key_name}-${count.index + 1}"
-     # ...
    }
-   ```
 
-2. **Listener Location Configuration**
-   ```hcl
+2. Listener Location Configuration
    blockchainEvents = {
      locations = var.existing_token_contract_address != "" ? [
        { address = var.existing_token_contract_address }
      ] : []
-     # ...
    }
-   ```
 
-3. **New Variables**
-   - `signing_key_count` (default: 2)
-   - `token_name`
-   - `token_symbol`
-   - `existing_token_contract_address`
+3. New Variables
+   - signing_key_count (default: 2)
+   - token_name
+   - token_symbol
+   - existing_token_contract_address
 
----
+================================================================================
+FOR PRESENTATION
+================================================================================
 
-## 🎯 For Presentation
+What You Can Show:
 
-### What You Can Show:
-
-1. **Terraform Deployment**
-   - `terraform output` - shows 2 signing keys and 2 addresses
+1. Terraform Deployment
+   - terraform output - shows 2 signing keys and 2 addresses
    - Multiple keys in one HD Wallet
 
-2. **Wallet Manager**
+2. Wallet Manager
    - 2 wallets created
    - Asset configured with flow
    - Accounts connected
 
-3. **Blockchain Transactions**
+3. Blockchain Transactions
    - TX Hashes as proof that transfers work
    - Can verify in blockchain explorer
    - FireFly UI shows "Blockchain invoke succeeded"
 
-4. **FireFly**
+4. FireFly
    - Smart Contract API created
    - Contract listener configured
-   - Transactions visible in `/transactions`
+   - Transactions visible in /transactions
 
-5. **Asset Manager**
+5. Asset Manager
    - Pool created with namespace
    - Asset created and linked
    - Task works (manual test successful)
 
-### What NOT to Show:
+What NOT to Show:
 - AssetManager transfers (empty)
 - FireFly blockchain events (empty)
 
----
+================================================================================
+KNOWN ISSUE: FIREFLY EVENT LISTENER
+================================================================================
 
-## 🐛 Known Issue: FireFly Event Listener
+Title: FireFly blockchain connector (evmconnect) not publishing blockchain events
 
-**Title:** FireFly blockchain connector (evmconnect) not publishing blockchain events
+Description:
+Despite correct configuration of contract listener (location, signature, firstEvent),
+FireFly does not register blockchain events. Listener checkpoint immediately jumps
+to latest block instead of indexing from block 0.
 
-**Description:**
-Despite correct configuration of contract listener (location, signature, firstEvent), FireFly does not register blockchain events. Listener checkpoint immediately jumps to latest block instead of indexing from block 0.
+Resolution Attempts (Chronologically):
+1. [OK] Added locations to listener config in Terraform
+2. [OK] Restarted listener (stop/start)
+3. [OK] Deleted old wildcard listener *:Transfer (ID: e71c3359-207a-4643-970c-c1864ff3d63f)
+4. [OK] Terraform taint + recreate FFListener (old ID: fsb:x2o6qiis7z, new: fsb:lc8trcwt1k)
+5. [OK] Deleted old pool without namespace (apl:yrvsjv6rl8)
+6. [OK] Executed new transfers (10 STT, 5 STT)
+7. [OK] Manual task invocation - SUCCESS (pool + asset created with namespace)
+8. [ERROR] Still no blockchain events in FireFly
 
-**Resolution Attempts (Chronologically):**
-1. ✅ Added `locations` to listener config in Terraform
-2. ✅ Restarted listener (stop/start)
-3. ✅ Deleted old wildcard listener `*:Transfer` (ID: `e71c3359-207a-4643-970c-c1864ff3d63f`)
-4. ✅ Terraform taint + recreate FFListener (old ID: `fsb:x2o6qiis7z`, new: `fsb:lc8trcwt1k`)
-5. ✅ Deleted old pool without namespace (`apl:yrvsjv6rl8`)
-6. ✅ Executed new transfers (10 STT, 5 STT)
-7. ✅ Manual task invocation - **SUCCESS** (pool + asset created with namespace)
-8. ❌ **Still no blockchain events in FireFly**
+Confirmed Causes:
+- [OK] Terraform configuration is correct
+- [OK] Task erc20_indexer works correctly
+- [OK] Pool and Asset are created with namespace
+- [ERROR] FireFly blockchain connector (evmconnect) does not publish events
+- [ERROR] Kaleido platform issue, not configuration
 
-**Confirmed Causes:**
-- ✅ Terraform configuration is correct
-- ✅ Task `erc20_indexer` works correctly
-- ✅ Pool and Asset are created with namespace
-- ❌ **FireFly blockchain connector (evmconnect) does not publish events**
-- ❌ Kaleido platform issue, not configuration
-
-**Next Steps:**
-- **REQUIRED** contact with Kaleido Support
+Next Steps:
+- REQUIRED contact with Kaleido Support
 - Check evmconnect connector logs
 - Verify blockchain node event publishing
 - Possible restart of blockchain connector in environment
 - Potentially bug in Kaleido platform requiring hotfix
 
----
+================================================================================
+STATISTICS
+================================================================================
 
-## 📊 Statistics
+- Work Time: ~5 hours (3h implementation + 2h debugging)
+- Terraform resources deployed: 11
+- Transactions executed: 6 (100% success rate)
+- Tokens minted: 1100 STT
+- Tokens transferred: 90 STT
+- Problems diagnosed: 12
+- Problems resolved: 11
+- Problems unresolved: 1 (FireFly blockchain connector - platform bug)
 
-- **Work Time:** ~5 hours (3h implementation + 2h debugging)
-- **Terraform resources deployed:** 11
-- **Transactions executed:** 6 (100% success rate)
-- **Tokens minted:** 1100 STT
-- **Tokens transferred:** 90 STT
-- **Problems diagnosed:** 12
-- **Problems resolved:** 11
-- **Problems unresolved:** 1 (FireFly blockchain connector - platform bug)
+================================================================================
+DEPLOYMENT GUIDE (for other environments)
+================================================================================
 
----
-
-## ✅ Deployment Guide (for other environments)
-
-### Requirements:
+Requirements:
 1. Kaleido Environment with:
    - Key Manager (FireFly Signer)
    - EVM Gateway
@@ -242,80 +246,83 @@ Despite correct configuration of contract listener (location, signature, firstEv
 
 2. Existing ERC20 token contract
 
-### Deployment Steps:
+Deployment Steps:
 
-1. **Terraform**
-   ```bash
+1. Terraform
    cd digital_assets_standalone
    terraform init
    terraform plan -var-file="vars/dev.tfvars"
    terraform apply -var-file="vars/dev.tfvars"
-   ```
 
-2. **FireFly Configuration** (manually via Swagger)
+2. FireFly Configuration (manually via Swagger)
    - Generate FFI from ABI
    - Register FFI
    - Create Smart Contract API
 
-3. **AssetManager Configuration** (manually via Swagger)
+3. AssetManager Configuration (manually via Swagger)
    - Create pool (bulk datamodel)
 
-4. **WalletManager Configuration** (manually via Swagger)
+4. WalletManager Configuration (manually via Swagger)
    - Create/update asset with flow
    - Create wallets
    - Connect wallets to asset
 
-5. **Test Transactions**
+5. Test Transactions
    - Mint via FireFly API
    - Transfer via FireFly API
 
----
+================================================================================
+USEFUL LINKS
+================================================================================
 
-## 🔗 Useful Links
+FireFly Swagger:
+https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/sc-chain-casa-core/rest/api/v1/index.html
 
-- FireFly Swagger: `https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/sc-chain-casa-core/rest/api/v1/index.html`
-- Asset Manager Swagger: `https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/asset-manager/rest/api/v1/index.html`
-- Wallet Manager Swagger: `https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/wallet-manager/rest/api/v1/index.html`
+Asset Manager Swagger:
+https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/asset-manager/rest/api/v1/index.html
 
----
+Wallet Manager Swagger:
+https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/wallet-manager/rest/api/v1/index.html
 
-## 📞 Kaleido Support Contact
+================================================================================
+KALEIDO SUPPORT CONTACT
+================================================================================
 
-**REQUIRED** support ticket for blockchain connector fix:
+REQUIRED support ticket for blockchain connector fix:
 
-### Ticket Details:
-**Title:** "FireFly blockchain connector (evmconnect) not publishing blockchain events"
+Ticket Details:
+Title: "FireFly blockchain connector (evmconnect) not publishing blockchain events"
+Priority: High (blocks event indexing in Asset Manager)
 
-**Priority:** High (blocks event indexing in Asset Manager)
+Environment Info:
+- Environment ID: e:fryskwx4xf
+- Environment Name: dlt-da-01
+- FireFly Namespace: sc-chain-casa-core
+- Asset Manager Service: s:b0yh11ault
+- FFListener ID: fsb:lc8trcwt1k
 
-**Environment Info:**
-- Environment ID: `e:fryskwx4xf`
-- Environment Name: `dlt-da-01`
-- FireFly Namespace: `sc-chain-casa-core`
-- Asset Manager Service: `s:b0yh11ault`
-- FFListener ID: `fsb:lc8trcwt1k`
+Contract Info:
+- Token Contract: 0x08bcc05e7a712fe3587edf7130c00df2768241d1
+- Event: Transfer(address,address,uint256)
+- Contract Listener ID: 23509172-fa11-42e5-b7dd-0e294c565ff0
 
-**Contract Info:**
-- Token Contract: `0x08bcc05e7a712fe3587edf7130c00df2768241d1`
-- Event: `Transfer(address,address,uint256)`
-- Contract Listener ID: `23509172-fa11-42e5-b7dd-0e294c565ff0`
+Example TX Hashes (confirming transactions work):
+- 0x288cb036032e9cb323905fb30db4def5d03b3c854f431adcb35c454b6b1a36b8 (2026-01-14 22:09:03)
+- 0xe0440338114fdc4a5d4e0bf89197fdb15761fb523c95e73ee42c34f6bd684860 (2026-01-14 21:51:11)
 
-**Example TX Hashes (confirming transactions work):**
-- `0x288cb036032e9cb323905fb30db4def5d03b3c854f431adcb35c454b6b1a36b8` (2026-01-14 22:09:03)
-- `0xe0440338114fdc4a5d4e0bf89197fdb15761fb523c95e73ee42c34f6bd684860` (2026-01-14 21:51:11)
-
-**Problem Description:**
+Problem Description:
 FireFly blockchain connector does not publish blockchain events even though:
-1. Transactions execute successfully (visible in `/transactions`)
+1. Transactions execute successfully (visible in /transactions)
 2. Contract listener is correctly configured (location, signature, firstEvent)
-3. FFListener and task `erc20_indexer` work (confirmed by manual invocation)
-4. GET `/blockchainevents` always returns `[]` (empty)
+3. FFListener and task erc20_indexer work (confirmed by manual invocation)
+4. GET /blockchainevents always returns [] (empty)
 
-**Evidence:**
-- Task invoked manually with mock event → **SUCCESS** (created pool + asset)
-- Pool ID: `apl:89xje5comy` with namespace `sc-chain-casa-core`
-- Asset ID: `ast:fb3scvlagg`
+Evidence:
+- Task invoked manually with mock event -> SUCCESS (created pool + asset)
+- Pool ID: apl:89xje5comy with namespace sc-chain-casa-core
+- Asset ID: ast:fb3scvlagg
 - Problem is in blockchain connector, not configuration
 
-**Request:**
-Check and restart evmconnect connector or blockchain node event publishing for environment `dlt-da-01`.
+Request:
+Check and restart evmconnect connector or blockchain node event publishing
+for environment dlt-da-01.
