@@ -1,0 +1,101 @@
+TASK: FIREFLY BLOCKCHAIN CONNECTOR NOT PUBLISHING EVENTS
+================================================================================
+
+Assigned to: Kaleido Support
+Priority: High
+Date: January 15, 2026
+
+================================================================================
+PROBLEM
+================================================================================
+
+FireFly blockchain connector (evmconnect) does not publish blockchain events
+from Ethereum node, even though transactions execute successfully.
+
+================================================================================
+ENVIRONMENT
+================================================================================
+
+Environment ID:        e:fryskwx4xf
+Environment Name:      dlt-da-01
+FireFly Namespace:     sc-chain-casa-core
+Asset Manager Service: s:b0yh11ault
+FFListener ID:         fsb:lc8trcwt1k
+
+================================================================================
+CONTRACT INFO
+================================================================================
+
+Token Contract:        0x08bcc05e7a712fe3587edf7130c00df2768241d1
+Event:                 Transfer(address,address,uint256)
+Contract Listener ID:  23509172-fa11-42e5-b7dd-0e294c565ff0
+
+================================================================================
+WHAT WORKS
+================================================================================
+
+[OK] Blockchain transactions (6 TX executed, 100% success rate)
+[OK] Contract listener configured (location, signature, firstEvent: "0")
+[OK] FFListener with taskId and namespace
+[OK] Task erc20_indexer works (confirmed by manual test)
+[OK] Pool and Asset created correctly with namespace
+
+================================================================================
+WHAT DOES NOT WORK
+================================================================================
+
+[ERROR] GET /blockchainevents returns [] (empty)
+[ERROR] evmconnect does not convert transaction -> blockchain event
+[ERROR] Contract listener receives no events
+[ERROR] Asset Manager does not index transfers
+
+================================================================================
+EVIDENCE
+================================================================================
+
+Transactions work:
+- 0x288cb036032e9cb323905fb30db4def5d03b3c854f431adcb35c454b6b1a36b8 (2026-01-14 22:09:03)
+- 0xe0440338114fdc4a5d4e0bf89197fdb15761fb523c95e73ee42c34f6bd684860 (2026-01-14 21:51:11)
+
+Manual task test - SUCCESS:
+- Pool ID: apl:89xje5comy with namespace sc-chain-casa-core
+- Asset ID: ast:fb3scvlagg
+
+================================================================================
+RESOLUTION ATTEMPTS (completed)
+================================================================================
+
+1. [OK] Added locations to listener config in Terraform
+2. [OK] Restarted listener (stop/start)
+3. [OK] Deleted old wildcard listener *:Transfer
+4. [OK] Terraform taint + recreate FFListener
+5. [OK] Deleted old pool without namespace
+6. [OK] Executed new transfers (10 STT, 5 STT)
+7. [OK] Manual task invocation - SUCCESS
+8. [ERROR] Still no blockchain events
+
+================================================================================
+CONCLUSION
+================================================================================
+
+Problem is in KALEIDO PLATFORM (evmconnect/blockchain node), not configuration.
+Terraform configuration and task are 100% correct.
+
+================================================================================
+ACTION REQUIRED
+================================================================================
+
+1. Check evmconnect connector logs
+2. Verify blockchain node event publishing
+3. Restart evmconnect connector for environment dlt-da-01
+4. Potentially hotfix if this is a platform bug
+
+================================================================================
+LINKS
+================================================================================
+
+FireFly Swagger:
+https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/sc-chain-casa-core/rest/api/v1/index.html
+
+Asset Manager Swagger:
+https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/asset-manager/rest/api/v1/index.html
