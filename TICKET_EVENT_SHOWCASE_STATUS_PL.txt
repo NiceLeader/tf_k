@@ -1,0 +1,146 @@
+TICKET: Digital Assets Event Showcase (mint, burn, transfer etc)
+================================================================================
+
+Data: 15 Stycznia 2026
+Status: CZESCIOWO ZABLOKOWANY
+
+================================================================================
+CELE TICKETU
+================================================================================
+
+1. Showcase events: smart contract deployment, mint, burn, transfer transactions
+2. Lista wszystkich kroków do showcase step 1 włącznie z manual API configuration setup
+
+================================================================================
+SMART CONTRACT DEPLOYMENT
+================================================================================
+
+[OK] Contract deployed: 0x08bcc05e7a712fe3587edf7130c00df2768241d1
+[OK] FFI zarejestrowany w FireFly
+[OK] Smart Contract API utworzone: simple-test-token-api
+[OK] Contract Listener skonfigurowany z location, signature, firstEvent: "0"
+
+================================================================================
+MINT TRANSACTIONS
+================================================================================
+
+[OK] Mint 1000 STT - TX: 0xb8dcb3b7...5b4eeae9 - SUKCES
+[OK] Mint 100 STT - TX: 0x29e0d68c...74676a2b - SUKCES
+
+================================================================================
+TRANSFER TRANSACTIONS
+================================================================================
+
+[OK] Transfer 50 STT - TX: 0x4f680a94...16b6006b - SUKCES
+[OK] Transfer 25 STT - TX: 0x0a244d38...136f8b00 - SUKCES
+[OK] Transfer 10 STT - TX: 0xe0440338...bd684860 - SUKCES
+[OK] Transfer 5 STT - TX: 0x288cb036...6b1a36b8 - SUKCES
+
+Lacznie przetransferowano: 90 STT
+Z: 0xd045228c9a6d53b81cf15d15408af32ebad3b9cf (wallet-1)
+Do: 0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361 (wallet-2)
+
+================================================================================
+BURN TRANSACTIONS
+================================================================================
+
+[OCZEKUJE] Nie testowane jeszcze (ten sam mechanizm co mint/transfer)
+
+================================================================================
+MANUAL API CONFIGURATION SETUP
+================================================================================
+
+FireFly Configuration:
+[OK] FFI (FireFly Interface) zarejestrowany
+[OK] Smart Contract API utworzone
+[OK] Contract Listener skonfigurowany
+
+Asset Manager Configuration:
+[OK] Pool utworzony z namespace: sc-chain-casa-core
+[OK] Pool ID: apl:89xje5comy
+[OK] Asset utworzony: ast:fb3scvlagg
+
+Wallet Manager Configuration:
+[OK] Asset skonfigurowany: simple-test-token (STT)
+[OK] Flow skonfigurowany: sc-chain-casa-core/apis/simple-test-token-api
+[OK] Wallet 1 utworzony: wal:9vvi216aur
+[OK] Wallet 2 utworzony: wal:26jmcn4zh7
+[OK] Accounts polaczone z asset
+
+================================================================================
+STATUS EVENT SHOWCASE
+================================================================================
+
+Feature      | Transakcja  | Event Showcase
+-------------|-------------|----------------
+Deploy       | OK          | BRAK EVENTOW
+Mint         | OK          | BRAK EVENTOW
+Transfer     | OK          | BRAK EVENTOW
+Burn         | Nie testow. | BRAK EVENTOW
+
+================================================================================
+CO DZIALA
+================================================================================
+
+[OK] Smart contract deployment
+[OK] Mint transactions wykonuja sie pomyslnie
+[OK] Transfer transactions wykonuja sie pomyslnie
+[OK] Wszystkie TX hashes potwierdzone w blockchain
+[OK] FireFly zapisuje transakcje w /transactions
+[OK] Reczne wywolanie taska tworzy pool/asset poprawnie
+[OK] Manual API configuration jest kompletna
+
+================================================================================
+CO NIE DZIALA
+================================================================================
+
+[BLAD] Events NIE widoczne w /blockchainevents (zwraca pusty [])
+[BLAD] Transfers NIE sa automatycznie indeksowane w Asset Manager
+[BLAD] evmconnect nie publikuje blockchain events
+[BLAD] Event showcase nie moze byc zademonstrowany
+
+================================================================================
+PRZYCZYNA
+================================================================================
+
+FireFly blockchain connector (evmconnect) nie konwertuje transakcji
+blockchain na blockchain events. To jest PROBLEM PLATFORMY, nie
+problem konfiguracji.
+
+Dowody:
+- Transakcje wykonuja sie pomyslnie (6 TX, 100% success rate)
+- GET /blockchainevents zwraca [] (pusty)
+- Reczne wywolanie taska dziala (dowodzi ze konfiguracja jest poprawna)
+- Transfer utworzony przez reczny test ma blockchainEvent: null
+
+================================================================================
+BLOCKER
+================================================================================
+
+TRANSAKCJE DZIALAJA - ale EVENT SHOWCASE nie dziala przez problem evmconnect.
+
+Aby ukonczyc cele ticketu, potrzebujemy:
+1. Kaleido Support do sprawdzenia/restartu evmconnect connector
+2. Weryfikacji czy blockchain node event publishing dziala
+3. Gdy eventy zaczna plynac, wszystkie funkcje showcase beda dzialac
+
+================================================================================
+INFORMACJE O SRODOWISKU
+================================================================================
+
+Environment ID:        e:fryskwx4xf
+Environment Name:      dlt-da-01
+FireFly Namespace:     sc-chain-casa-core
+Token Contract:        0x08bcc05e7a712fe3587edf7130c00df2768241d1
+FFListener ID:         fsb:lc8trcwt1k
+Contract Listener ID:  23509172-fa11-42e5-b7dd-0e294c565ff0
+
+================================================================================
+PODSUMOWANIE POSTEPU
+================================================================================
+
+Transakcje: 100% dzialaja (mint, transfer potwierdzone)
+Konfiguracja: 100% kompletna (FireFly, Asset Manager, Wallet Manager)
+Event Showcase: 0% dziala (zablokowane przez evmconnect)
+
+Ogolnie: ~70% ukonczone, zablokowane przez problem platformy

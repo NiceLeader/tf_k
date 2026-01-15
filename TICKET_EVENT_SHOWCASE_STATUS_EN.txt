@@ -1,0 +1,146 @@
+TICKET: Digital Assets Event Showcase (mint, burn, transfer etc)
+================================================================================
+
+Date: January 15, 2026
+Status: PARTIALLY BLOCKED
+
+================================================================================
+TICKET OBJECTIVES
+================================================================================
+
+1. Showcase events like smart contract deployment, mint, burn, transfer transactions
+2. List all necessary steps to showcase step 1 including manual API configuration setup
+
+================================================================================
+SMART CONTRACT DEPLOYMENT
+================================================================================
+
+[OK] Contract deployed: 0x08bcc05e7a712fe3587edf7130c00df2768241d1
+[OK] FFI registered in FireFly
+[OK] Smart Contract API created: simple-test-token-api
+[OK] Contract Listener configured with location, signature, firstEvent: "0"
+
+================================================================================
+MINT TRANSACTIONS
+================================================================================
+
+[OK] Mint 1000 STT - TX: 0xb8dcb3b7...5b4eeae9 - SUCCESS
+[OK] Mint 100 STT - TX: 0x29e0d68c...74676a2b - SUCCESS
+
+================================================================================
+TRANSFER TRANSACTIONS
+================================================================================
+
+[OK] Transfer 50 STT - TX: 0x4f680a94...16b6006b - SUCCESS
+[OK] Transfer 25 STT - TX: 0x0a244d38...136f8b00 - SUCCESS
+[OK] Transfer 10 STT - TX: 0xe0440338...bd684860 - SUCCESS
+[OK] Transfer 5 STT - TX: 0x288cb036...6b1a36b8 - SUCCESS
+
+Total Transferred: 90 STT
+From: 0xd045228c9a6d53b81cf15d15408af32ebad3b9cf (wallet-1)
+To: 0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361 (wallet-2)
+
+================================================================================
+BURN TRANSACTIONS
+================================================================================
+
+[PENDING] Not tested yet (same mechanism as mint/transfer)
+
+================================================================================
+MANUAL API CONFIGURATION SETUP
+================================================================================
+
+FireFly Configuration:
+[OK] FFI (FireFly Interface) registered
+[OK] Smart Contract API created
+[OK] Contract Listener configured
+
+Asset Manager Configuration:
+[OK] Pool created with namespace: sc-chain-casa-core
+[OK] Pool ID: apl:89xje5comy
+[OK] Asset created: ast:fb3scvlagg
+
+Wallet Manager Configuration:
+[OK] Asset configured: simple-test-token (STT)
+[OK] Flow configured: sc-chain-casa-core/apis/simple-test-token-api
+[OK] Wallet 1 created: wal:9vvi216aur
+[OK] Wallet 2 created: wal:26jmcn4zh7
+[OK] Accounts connected to asset
+
+================================================================================
+EVENT SHOWCASE STATUS
+================================================================================
+
+Feature      | Transaction | Event Showcase
+-------------|-------------|----------------
+Deploy       | OK          | NO EVENTS
+Mint         | OK          | NO EVENTS
+Transfer     | OK          | NO EVENTS
+Burn         | Not tested  | NO EVENTS
+
+================================================================================
+WHAT WORKS
+================================================================================
+
+[OK] Smart contract deployment
+[OK] Mint transactions execute successfully
+[OK] Transfer transactions execute successfully
+[OK] All TX hashes confirmed on blockchain
+[OK] FireFly records transactions in /transactions
+[OK] Manual task invocation creates pool/asset correctly
+[OK] Manual API configuration is complete
+
+================================================================================
+WHAT DOES NOT WORK
+================================================================================
+
+[ERROR] Events NOT visible in /blockchainevents (returns empty [])
+[ERROR] Transfers NOT automatically indexed in Asset Manager
+[ERROR] evmconnect does not publish blockchain events
+[ERROR] Event showcase cannot be demonstrated
+
+================================================================================
+ROOT CAUSE
+================================================================================
+
+FireFly blockchain connector (evmconnect) does not convert blockchain
+transactions into blockchain events. This is a PLATFORM ISSUE, not
+a configuration issue.
+
+Evidence:
+- Transactions execute successfully (6 TX, 100% success rate)
+- GET /blockchainevents returns [] (empty)
+- Manual task invocation works (proves configuration is correct)
+- Transfer created via manual test has blockchainEvent: null
+
+================================================================================
+BLOCKER
+================================================================================
+
+TRANSACTIONS WORK - but EVENT SHOWCASE does not work due to evmconnect issue.
+
+To complete the ticket objectives, we need:
+1. Kaleido Support to check/restart evmconnect connector
+2. Verify blockchain node event publishing is working
+3. Once events flow, all showcase features will work
+
+================================================================================
+ENVIRONMENT INFO
+================================================================================
+
+Environment ID:        e:fryskwx4xf
+Environment Name:      dlt-da-01
+FireFly Namespace:     sc-chain-casa-core
+Token Contract:        0x08bcc05e7a712fe3587edf7130c00df2768241d1
+FFListener ID:         fsb:lc8trcwt1k
+Contract Listener ID:  23509172-fa11-42e5-b7dd-0e294c565ff0
+
+================================================================================
+PROGRESS SUMMARY
+================================================================================
+
+Transactions: 100% working (mint, transfer confirmed)
+Configuration: 100% complete (FireFly, Asset Manager, Wallet Manager)
+Event Showcase: 0% working (blocked by evmconnect)
+
+Overall: ~70% complete, blocked by platform issue
