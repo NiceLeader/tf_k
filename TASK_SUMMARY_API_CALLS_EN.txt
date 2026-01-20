@@ -1,0 +1,203 @@
+TASK SUMMARY: Digital Assets Event Showcase
+================================================================================
+
+Date: January 15-20, 2026
+Status: Partially Complete (blocked by event indexing issue)
+
+================================================================================
+WHAT WAS CREATED VIA TERRAFORM
+================================================================================
+
+1. TokenizationStack
+   - Asset Manager service
+   - ERC20 Indexer with FFListener
+
+2. CustodyStack
+   - Wallet Manager service
+
+3. HD Wallet with 2 Signing Keys
+   - Key 1: k:9boyfcpc6p -> 0xd045228c9a6d53b81cf15d15408af32ebad3b9cf
+   - Key 2: k:3vm3fheaip -> 0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361
+
+4. FFListener for ERC20 Events
+   - ID: fsb:lc8trcwt1k
+   - Task: erc20_indexer
+   - Namespace: sc-chain-casa-core
+
+================================================================================
+WHAT WAS CREATED VIA API CALLS
+================================================================================
+
+FIREFLY SWAGGER (sc-chain-casa-core)
+--------------------------------------------------------------------------------
+
+1. POST /contracts/interfaces/generate
+   Purpose: Generate FFI (FireFly Interface) from ERC20 ABI
+   Result: FFI generated for ERC20 token contract
+
+2. POST /contracts/interfaces
+   Purpose: Register FFI in FireFly
+   Result: ERC20 interface registered
+
+3. POST /apis
+   Purpose: Create Smart Contract API
+   Body: {
+     "name": "simple-test-token-api",
+     "interface": { ... },
+     "location": { "address": "0x08bcc05e7a712fe3587edf7130c00df2768241d1" }
+   }
+   Result: API created - simple-test-token-api
+
+4. POST /contracts/apis/simple-test-token-api/invoke/mint
+   Purpose: Mint tokens
+   Calls:
+   - Mint 1000 STT -> TX: 0xb8dcb3b7...5b4eeae9 SUCCESS
+   - Mint 100 STT -> TX: 0x29e0d68c...74676a2b SUCCESS
+
+5. POST /contracts/apis/simple-test-token-api/invoke/transfer
+   Purpose: Transfer tokens between wallets
+   Calls:
+   - Transfer 50 STT -> TX: 0x4f680a94...16b6006b SUCCESS
+   - Transfer 25 STT -> TX: 0x0a244d38...136f8b00 SUCCESS
+   - Transfer 10 STT -> TX: 0xe0440338...bd684860 SUCCESS
+   - Transfer 5 STT -> TX: 0x288cb036...6b1a36b8 SUCCESS
+
+6. DELETE /contracts/listeners/{id}
+   Purpose: Delete old wildcard listener
+   ID deleted: e71c3359-207a-4643-970c-c1864ff3d63f
+   Reason: Old listener with "*:Transfer" was intercepting all events
+
+ASSET MANAGER SWAGGER
+--------------------------------------------------------------------------------
+
+7. POST /tasks/{taskId}/invoke
+   Purpose: Manual task invocation test
+   Task: erc20_indexer
+   Body: Mock Transfer event data
+   Result: SUCCESS - Pool and Asset created
+
+8. DELETE /pools/{id}
+   Purpose: Delete old pool without namespace
+   ID deleted: apl:yrvsjv6rl8
+   Reason: Pool had firefly.namespace: null
+
+9. GET /pools
+   Result:
+   - apl:89xje5comy (namespace: sc-chain-casa-core) - CURRENT
+   - apl:wrrk0q8l3t (namespace: null) - OLD
+
+10. GET /transfers
+    Result: 1 transfer record
+    - ID: atf:xaizfwl5i4
+    - blockchainEvent: null (created via manual task test)
+
+WALLET MANAGER SWAGGER
+--------------------------------------------------------------------------------
+
+11. PUT /assets/{assetName}
+    Purpose: Create/update asset configuration
+    Body: {
+      "name": "simple-test-token",
+      "symbol": "STT",
+      "flow": "sc-chain-casa-core/apis/simple-test-token-api"
+    }
+    Result: Asset configured with flow
+
+12. POST /wallets
+    Purpose: Create wallets
+    Calls:
+    - Wallet 1: wal:9vvi216aur -> 0xd045228c9a6d53b81cf15d15408af32ebad3b9cf
+    - Wallet 2: wal:26jmcn4zh7 -> 0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361
+
+13. POST /wallets/{walletId}/accounts
+    Purpose: Connect wallets to asset
+    Result: Both wallets connected to simple-test-token asset
+
+================================================================================
+DEBUGGING API CALLS
+================================================================================
+
+FIREFLY SWAGGER (sc-chain-casa-core)
+--------------------------------------------------------------------------------
+
+14. GET /blockchainevents
+    Purpose: Check if events are being captured
+    Result: [] (empty) - PROBLEM IDENTIFIED
+
+15. GET /transactions
+    Purpose: Verify transactions exist
+    Result: Shows all contract_invoke transactions - SUCCESS
+
+16. GET /contracts/listeners
+    Purpose: Check listener configuration
+    Result: Listener exists with correct config
+
+17. GET /contracts/listeners/{id}?fetchstatus=true
+    Purpose: Check listener checkpoint status
+    Result: checkpoint at block 437929, catchup: false
+
+18. GET /subscriptions
+    Purpose: Check subscription configuration
+    Result: Subscription exists, firstEvent: "10"
+
+19. GET /tokens/pools
+    Purpose: Check FireFly token pools
+    Result: [] (empty) - No FireFly token pool registered
+
+================================================================================
+CURRENT STATE SUMMARY
+================================================================================
+
+CREATED SUCCESSFULLY:
+- Smart Contract API: simple-test-token-api
+- Contract Listener: 23509172-fa11-42e5-b7dd-0e294c565ff0
+- Asset Manager Pool: apl:89xje5comy (with namespace)
+- Asset Manager Asset: ast:fb3scvlagg
+- Wallet 1: wal:9vvi216aur
+- Wallet 2: wal:26jmcn4zh7
+- 6 Transactions: 2x mint, 4x transfer (all SUCCESS)
+
+NOT WORKING:
+- Blockchain events not being indexed (/blockchainevents = empty)
+- Automatic transfer indexing not working
+- FireFly token pool not registered
+
+================================================================================
+TRANSACTION SUMMARY
+================================================================================
+
+Type      | Amount    | TX Hash                    | Block   | Status
+----------|-----------|----------------------------|---------|--------
+Mint      | 1000 STT  | 0xb8dcb3b7...5b4eeae9     | -       | SUCCESS
+Mint      | 100 STT   | 0x29e0d68c...74676a2b     | -       | SUCCESS
+Transfer  | 50 STT    | 0x4f680a94...16b6006b     | -       | SUCCESS
+Transfer  | 25 STT    | 0x0a244d38...136f8b00     | -       | SUCCESS
+Transfer  | 10 STT    | 0xe0440338...bd684860     | -       | SUCCESS
+Transfer  | 5 STT     | 0x288cb036...6b1a36b8     | 328873  | SUCCESS
+
+Total Minted: 1100 STT
+Total Transferred: 90 STT
+
+================================================================================
+ENVIRONMENT INFO
+================================================================================
+
+Environment ID:        e:fryskwx4xf
+Environment Name:      dlt-da-01
+FireFly Namespace:     sc-chain-casa-core
+Token Contract:        0x08bcc05e7a712fe3587edf7130c00df2768241d1
+FFListener ID:         fsb:lc8trcwt1k
+Contract Listener ID:  23509172-fa11-42e5-b7dd-0e294c565ff0
+Asset Manager Service: s:b0yh11ault
+
+================================================================================
+KNOWN ISSUE
+================================================================================
+
+Problem: Listener checkpoint (block 437929) has passed our transaction blocks (~328873).
+Even though listener is configured correctly, it won't see old events.
+
+Next Steps:
+1. Execute NEW transaction to test if listener catches new events
+2. Or reset/recreate listener to start from earlier block
+3. Contact Kaleido Support if new events also not captured
