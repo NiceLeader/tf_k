@@ -1,0 +1,171 @@
+================================================================================
+                    ERC20 TOKEN DEMO - INSTRUKCJA DLA MOHITA
+================================================================================
+
+PODSUMOWANIE
+------------
+Demonstracja funkcjonalnosci tokena ERC20 z funkcja BURN na platformie Kaleido.
+
+
+================================================================================
+                              KLUCZOWE DANE
+================================================================================
+
+Token Name:        Simple Test Token New
+Symbol:            STTN
+Decimals:          18
+Contract Address:  0xa3ef4754971b31eb71b9289f804f21006e70dc7b
+Treasury Wallet:   0xd045228c9a6d53b81cf15d15408af32ebad3b9cf
+
+
+================================================================================
+                            DOSTEP DO SWAGGER UI
+================================================================================
+
+ASSET MANAGER (podglad transfers/balances):
+https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/asset-manager/rest/api/v1
+
+TOKEN API (wykonywanie operacji mint/transfer/burn):
+https://account1.platform.ape1-c1.scb.kaleido.cloud/endpoint/dlt-da-01/sc-chain-casa-core/rest/api/v1/apis/simple-test-token-new/api
+
+
+================================================================================
+                           DEMO: KROK PO KROKU
+================================================================================
+
+----- KROK 1: POKAZ AKTUALNY BALANS -----
+
+Swagger:  Asset Manager
+Endpoint: GET /balances
+
+Wynik: Pokaze saldo tokena STTN dla Treasury Wallet
+
+
+----- KROK 2: POKAZ HISTORIE TRANSFEROW -----
+
+Swagger:  Asset Manager
+Endpoint: GET /transfers
+
+Wynik: Lista wszystkich operacji z typami:
+  - mint     = utworzenie tokenow (from: 0x0000...)
+  - transfer = przelew miedzy adresami
+  - burn     = spalenie tokenow (to: 0x0000...)
+
+
+----- KROK 3: WYKONAJ MINT (opcjonalnie - live demo) -----
+
+Swagger:  Token API (simple-test-token-new)
+Endpoint: POST /invoke/mint?confirm=true
+
+Body:
+{
+  "input": {
+    "to": "0xd045228c9a6d53b81cf15d15408af32ebad3b9cf",
+    "amount": "1000000000000000000"
+  },
+  "key": "0xd045228c9a6d53b81cf15d15408af32ebad3b9cf"
+}
+
+Wynik: Utworzenie 1 STTN tokena
+
+UWAGA: 1000000000000000000 (18 zer) = 1 token (decimals = 18)
+
+
+----- KROK 4: WYKONAJ TRANSFER (opcjonalnie - live demo) -----
+
+Swagger:  Token API (simple-test-token-new)
+Endpoint: POST /invoke/transfer?confirm=true
+
+Body:
+{
+  "input": {
+    "to": "0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361",
+    "value": "100000000000000000"
+  },
+  "key": "0xd045228c9a6d53b81cf15d15408af32ebad3b9cf"
+}
+
+Wynik: Przelanie 0.1 STTN na inny adres
+
+
+----- KROK 5: WYKONAJ BURN (kluczowa funkcjonalnosc!) -----
+
+Swagger:  Token API (simple-test-token-new)
+Endpoint: POST /invoke/burn?confirm=true
+
+Body:
+{
+  "input": {
+    "value": "50000000000000000"
+  },
+  "key": "0xd045228c9a6d53b81cf15d15408af32ebad3b9cf"
+}
+
+Wynik: Spalenie 0.05 STTN (nieodwracalne usuniecie z obiegu)
+
+
+----- KROK 6: ZWERYFIKUJ OPERACJE -----
+
+Swagger:  Asset Manager
+Endpoint: GET /transfers
+
+Wynik: Nowe operacje widoczne w historii z odpowiednimi typami
+
+
+================================================================================
+                          PRZETESTOWANE TRANSAKCJE
+================================================================================
+
+Operacja     Transaction Hash                                              Status
+--------     ----------------                                              ------
+MINT         0xc5c39f60d963d0c882c188a4faee3c64ed2e845cecd89d9271044285ad3a022f   OK
+TRANSFER     0xc7b30ef0da1e2c90e8eb93125c42790300ec58765555cab5fcdd182cb3d0bffe   OK
+BURN         0x72b0a1e7651feaca5d99c5dc33c05afecfc22280fd8ae9ae8be7cc0d7762ba2b   OK
+
+
+================================================================================
+                              ARCHITEKTURA
+================================================================================
+
++------------------+     +------------------+     +------------------+
+|    Token API     |---->|   Blockchain     |---->|  Asset Manager   |
+|  (FireFly Core)  |     |   (Besu EVM)     |     |  (FFListener)    |
++------------------+     +------------------+     +------------------+
+        |                        |                        |
+   mint/burn/transfer      Smart Contract           Indexing &
+   transactions            execution                tracking
+
+
+================================================================================
+                           KONWERSJA JEDNOSTEK
+================================================================================
+
+Decimals = 18 oznacza:
+
+1 STTN                = 1000000000000000000 (1 + 18 zer)
+0.1 STTN              = 100000000000000000  (1 + 17 zer)
+0.01 STTN             = 10000000000000000   (1 + 16 zer)
+0.05 STTN             = 50000000000000000   (5 + 16 zer)
+
+
+================================================================================
+                           DODATKOWE WALLETY
+================================================================================
+
+Dla testow multi-party mozna uzyc:
+
+Wallet 1 (test-wallet-1): signing-key-1
+Wallet 2 (test-wallet-2): signing-key-2
+Inny adres:               0x94d2ecc5ea0efa1a8cab7ecffaa95b4c30dab361
+
+
+================================================================================
+                                UWAGI
+================================================================================
+
+- BURN - nowy kontrakt ERC20Burnable (stary kontrakt nie mial tej funkcji)
+- Wszystkie operacje sa automatycznie indeksowane przez Asset Manager
+- Transakcje sa nieodwracalne i zapisane na blockchain
+- W razie pytan: sprawdz DEPLOYMENT_INSTRUCTIONS.md w tym samym folderze
+
+================================================================================
