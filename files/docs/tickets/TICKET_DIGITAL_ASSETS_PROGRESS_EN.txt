@@ -1,0 +1,158 @@
+TICKET: Digital Asset Manager - Implementation Progress & Blocker
+================================================================================
+
+Date: January 15, 2026
+Status: BLOCKED - Awaiting Platform Support
+Priority: High
+
+================================================================================
+OBJECTIVE
+================================================================================
+
+Digital Asset Manager terraform scripts should be able to manage lifecycle of
+the mint, burn, transfer & smart contract deployment.
+
+================================================================================
+COMPLETED STEPS (1-8)
+================================================================================
+
+1. ADDING LOCATIONS TO LISTENER CONFIG IN TERRAFORM
+   Status: DONE
+   - Updated digital_assets_standalone/module/main.tf
+   - Added blockchainEvents.locations with contract address
+   - Configuration: { address: "0x08bcc05e7a712fe3587edf7130c00df2768241d1" }
+
+2. RESTARTING LISTENER
+   Status: DONE
+   - Stopped listener via FireFly API POST /contracts/listeners/{id}/stop
+   - Started listener via FireFly API POST /contracts/listeners/{id}/start
+   - Listener ID: 23509172-fa11-42e5-b7dd-0e294c565ff0
+
+3. DELETED OLD WILDCARD LISTENER
+   Status: DONE
+   - Found old listener with signature "*:Transfer" intercepting all events
+   - Listener ID deleted: e71c3359-207a-4643-970c-c1864ff3d63f
+   - Used FireFly API DELETE /contracts/listeners/{id}
+
+4. TERRAFORM TAINT SCRIPT RUN TO RECREATE LISTENER
+   Status: DONE
+   - Executed: terraform taint kaleido_platform_service.ff_listener
+   - Executed: terraform apply -var-file="vars/example.tfvars"
+   - Old FFListener ID: fsb:x2o6qiis7z
+   - New FFListener ID: fsb:lc8trcwt1k
+
+5. DELETING OLD POOL WITHOUT NAMESPACE
+   Status: DONE
+   - Found old pool without firefly.namespace linkage
+   - Pool ID deleted: apl:yrvsjv6rl8
+   - Used Asset Manager API DELETE /pools/{id}
+
+6. NAMESPACE VALIDATION
+   Status: DONE
+   - Verified FFListener has namespace: sc-chain-casa-core
+   - Verified task erc20_indexer references correct namespace
+   - Verified subscription topic matching is correct
+
+7. EXECUTED NEW TRANSFERS
+   Status: DONE
+   - Transfer 1: 10 STT - TX: 0xe0440338...bd684860 - SUCCESS
+   - Transfer 2: 5 STT - TX: 0x288cb036...6b1a36b8 - SUCCESS
+   - Total transferred: 90 STT (including previous transfers)
+   - All transactions confirmed on blockchain
+
+8. MANUAL TASK INVOCATION
+   Status: DONE - SUCCESS
+   - Invoked task erc20_indexer manually via Asset Manager API
+   - Result: Pool created with namespace sc-chain-casa-core
+   - Pool ID: apl:89xje5comy
+   - Asset ID: ast:fb3scvlagg
+   - CONFIRMS: Task configuration is 100% correct
+
+================================================================================
+BLOCKED STEPS (9-11)
+================================================================================
+
+9. CREATE BLOCKCHAIN EVENT
+   Status: BLOCKED
+   - FireFly blockchain connector (evmconnect) does NOT publish events
+   - GET /blockchainevents returns [] (empty)
+   - Events should be created automatically when transactions occur
+   - BLOCKER: Platform issue, not configuration
+
+10. CORRECT LISTING TRANSACTION ON CHAIN
+    Status: BLOCKED
+    - Cannot list transactions with events because events are not created
+    - Transactions exist in /transactions but not linked to blockchain events
+    - BLOCKER: Depends on step 9
+
+11. INDEXING TRANSFERS
+    Status: BLOCKED
+    - Asset Manager cannot index transfers automatically
+    - Task erc20_indexer never receives blockchain events
+    - Manual invocation works, but automatic flow is broken
+    - BLOCKER: Depends on steps 9 and 10
+
+================================================================================
+ROOT CAUSE ANALYSIS
+================================================================================
+
+After extensive debugging (8 resolution attempts), we confirmed:
+
+WHAT WORKS:
+- Terraform configuration is correct
+- Contract listener is properly configured
+- FFListener with taskId and namespace is correct
+- Task erc20_indexer works (proven by manual test)
+- Blockchain transactions execute successfully (6 TX, 100% success)
+
+WHAT DOES NOT WORK:
+- FireFly blockchain connector (evmconnect) does not convert
+  blockchain transactions into blockchain events
+- This is a PLATFORM ISSUE, not a configuration issue
+
+================================================================================
+EVIDENCE
+================================================================================
+
+Successful Transactions:
+- 0xb8dcb3b7...5b4eeae9 (Mint 1000 STT)
+- 0x29e0d68c...74676a2b (Mint 100 STT)
+- 0x4f680a94...16b6006b (Transfer 50 STT)
+- 0x0a244d38...136f8b00 (Transfer 25 STT)
+- 0xe0440338...bd684860 (Transfer 10 STT)
+- 0x288cb036...6b1a36b8 (Transfer 5 STT)
+
+Manual Task Test - SUCCESS:
+- Pool: apl:89xje5comy (namespace: sc-chain-casa-core)
+- Asset: ast:fb3scvlagg
+
+================================================================================
+ENVIRONMENT INFO
+================================================================================
+
+Environment ID:        e:fryskwx4xf
+Environment Name:      dlt-da-01
+FireFly Namespace:     sc-chain-casa-core
+Token Contract:        0x08bcc05e7a712fe3587edf7130c00df2768241d1
+FFListener ID:         fsb:lc8trcwt1k
+Contract Listener ID:  23509172-fa11-42e5-b7dd-0e294c565ff0
+
+================================================================================
+ACTION REQUIRED
+================================================================================
+
+To unblock steps 9-11, we need Kaleido Support to:
+
+1. Check evmconnect connector logs for environment dlt-da-01
+2. Verify blockchain node event publishing is working
+3. Restart evmconnect connector if necessary
+4. Apply hotfix if this is a platform bug
+
+================================================================================
+SUMMARY
+================================================================================
+
+Progress: 8/11 steps completed (73%)
+Blocker: Platform issue - evmconnect not publishing blockchain events
+Impact: Cannot complete automatic transfer indexing
+Next: Awaiting Kaleido Support intervention
