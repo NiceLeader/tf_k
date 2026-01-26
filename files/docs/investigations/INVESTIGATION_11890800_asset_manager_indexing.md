@@ -1,27 +1,30 @@
-# Investigation Report: Automated Asset Manager Indexing
+# Investigation Report
+
+## Automated Asset Manager Indexing
 
 **Ticket:** 11890800
-**Title:** Investigation: Automated Asset Manager Indexing
+
 **Status:** Completed
+
 **Date:** 2025-01-26
 
 ---
 
-## Summary
+## 1. Summary
 
 Investigation into why Asset Manager indexing is not fully automated and requires manual configuration steps. Discovered that multiple manual steps are needed to achieve full visibility of tokens and balances.
 
 ---
 
-## Problem Statement
+## 2. Problem Statement
 
 As a Kaleido developer, I expected Asset Manager to automatically index all blockchain events and display them without manual intervention. However, there is inconsistency between what exists on-chain and what is visible in Kaleido.
 
 ---
 
-## Investigation Findings
+## 3. Investigation Findings
 
-### 1. Asset Manager Indexing Components
+### 3.1 Asset Manager Indexing Components
 
 Asset Manager relies on multiple components for indexing:
 
@@ -32,44 +35,49 @@ Asset Manager relies on multiple components for indexing:
 | FFListener | Event subscription | Partially - requires FFI |
 | Address Tracking | Track specific addresses | NO - manual |
 
-### 2. Root Causes of Incomplete Indexing
+### 3.2 Root Causes of Incomplete Indexing
 
-#### 2.1 FFI Registration Required
-- **Issue:** New smart contracts require FireFly Interface (FFI) registration
-- **Finding:** Without FFI, Asset Manager cannot decode contract events
-- **Manual step:** `POST /contracts/interfaces` with contract ABI
+#### Cause 1: FFI Registration Required
 
-#### 2.2 Contract API Creation
-- **Issue:** Contract API must be explicitly created for each contract
-- **Finding:** This maps FFI to deployed contract address
-- **Manual step:** `POST /apis` with contract address and FFI reference
+- New smart contracts require FireFly Interface (FFI) registration
+- Without FFI, Asset Manager cannot decode contract events
+- Manual step: POST /contracts/interfaces with contract ABI
 
-#### 2.3 Address Tracking
-- **Issue:** Asset Manager only tracks explicitly registered addresses
-- **Finding:** Treasury wallets and user wallets must be added to tracking
-- **Manual steps:**
-  - `PATCH /addresses/{address}` for contract
-  - `PATCH /addresses/{address}` for each wallet
+#### Cause 2: Contract API Creation
 
-#### 2.4 Display Names Not Auto-populated
-- **Issue:** Assets appear with technical IDs, not human-readable names
-- **Finding:** `displayName` and `description` fields require manual PATCH
-- **API quirk:** Cannot change `name` field after creation (causes 404 error)
+- Contract API must be explicitly created for each contract
+- This maps FFI to deployed contract address
+- Manual step: POST /apis with contract address and FFI reference
 
-### 3. Wallet Manager Separation
+#### Cause 3: Address Tracking
 
-Critical finding: **Asset Manager and Wallet Manager are separate systems**
+- Asset Manager only tracks explicitly registered addresses
+- Treasury wallets and user wallets must be added to tracking
+- Manual steps:
+  - PATCH /addresses/{address} for contract
+  - PATCH /addresses/{address} for each wallet
+
+#### Cause 4: Display Names Not Auto-populated
+
+- Assets appear with technical IDs, not human-readable names
+- displayName and description fields require manual PATCH
+- API quirk: Cannot change "name" field after creation (causes 404 error)
+
+### 3.3 Wallet Manager Separation
+
+Critical finding: Asset Manager and Wallet Manager are separate systems.
 
 | System | Function | Auto-sync? |
 |--------|----------|------------|
 | Asset Manager | Event indexing, transfer history | Indexes from FFListener |
 | Wallet Manager | Balance display, custody UI | NO - requires manual asset connection |
 
-**To display tokens in Wallet Manager:**
-1. `POST /assets` - Create asset definition
-2. `POST /wallets/{wallet}/connect/{asset}` - Connect each wallet
+To display tokens in Wallet Manager:
 
-### 4. API Issues Encountered
+1. POST /assets - Create asset definition
+2. POST /wallets/{wallet}/connect/{asset} - Connect each wallet
+
+### 3.4 API Issues Encountered
 
 | Issue | Error Message | Resolution |
 |-------|--------------|------------|
@@ -79,69 +87,79 @@ Critical finding: **Asset Manager and Wallet Manager are separate systems**
 
 ---
 
-## Steps Required for Full Indexing
+## 4. Steps Required for Full Indexing
 
-### Asset Manager Setup (for event visibility):
-```
-1. POST /contracts/interfaces     → Register FFI
-2. POST /apis                     → Create Contract API
-3. PATCH /assets/{id}             → Set displayName
-4. PATCH /addresses/{contract}    → Track contract address
-5. PATCH /addresses/{wallet}      → Track wallet addresses
-```
+### Asset Manager Setup (for event visibility)
 
-### Wallet Manager Setup (for balance visibility):
-```
-1. POST /assets                   → Create asset in Wallet Manager
-2. POST /wallets/{id}/connect/{asset}  → Connect each wallet
-```
+| Step | Endpoint | Purpose |
+|------|----------|---------|
+| 1 | POST /contracts/interfaces | Register FFI |
+| 2 | POST /apis | Create Contract API |
+| 3 | PATCH /assets/{id} | Set displayName |
+| 4 | PATCH /addresses/{contract} | Track contract address |
+| 5 | PATCH /addresses/{wallet} | Track wallet addresses |
 
----
+### Wallet Manager Setup (for balance visibility)
 
-## Resolution
-
-1. **Documented all manual steps** required for complete indexing
-2. **Identified API limitations** (name field immutability)
-3. **Created working configuration** for test token (STTN)
-4. **Verified indexing working** after manual configuration
+| Step | Endpoint | Purpose |
+|------|----------|---------|
+| 1 | POST /assets | Create asset in Wallet Manager |
+| 2 | POST /wallets/{id}/connect/{asset} | Connect each wallet |
 
 ---
 
-## Recommendations
+## 5. Resolution
 
-### Short-term:
+1. Documented all manual steps required for complete indexing
+2. Identified API limitations (name field immutability)
+3. Created working configuration for test token (STTN)
+4. Verified indexing working after manual configuration
+
+---
+
+## 6. Recommendations
+
+### Short-term
+
 1. Create runbook documenting all required configuration steps
 2. Use consistent naming convention (kebab-case) for assets
 
-### Long-term:
+### Long-term
+
 1. Request Kaleido feature: Auto-detect new contracts from known factories
 2. Request Kaleido feature: Auto-connect wallets to new assets
-3. Consider Terraform automation for repeatable setup (see TERRAFORM_AUTOMATION_PLAN.md)
+3. Consider Terraform automation for repeatable setup
 
 ---
 
-## Test Evidence
+## 7. Test Evidence
 
-After manual configuration, indexing works correctly:
+After manual configuration, indexing works correctly.
 
-**Asset Manager (`GET /transfers`):**
+**Asset Manager (GET /transfers):**
+
 - Shows all MINT/TRANSFER/BURN events
 - Correctly classifies transaction types
 - Links to correct addresses
 
 **Wallet Manager:**
-- test-wallet-1: 6.70 STTN
-- test-wallet-2: 0.10 STTN
-- Balances update after each transaction
+
+| Wallet | Balance |
+|--------|---------|
+| test-wallet-1 | 6.70 STTN |
+| test-wallet-2 | 0.10 STTN |
+
+Balances update after each transaction.
 
 ---
 
-## Conclusion
+## 8. Conclusion
 
 Asset Manager indexing is NOT fully automated. Significant manual configuration is required:
+
 - 5 steps for Asset Manager
 - 2 steps per wallet for Wallet Manager
 
 This explains why initial token deployment did not result in immediate visibility. The platform requires explicit configuration at multiple layers.
 
-**Estimated setup time per new token:** 30-60 minutes (manual) or ~5 minutes (with Terraform automation)
+**Estimated setup time per new token:** 30-60 minutes (manual) or approximately 5 minutes (with Terraform automation)
